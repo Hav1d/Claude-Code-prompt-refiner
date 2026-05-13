@@ -78,15 +78,18 @@ async def handle_hook(
         config = load_config()
 
     raw_input = extract_prompt_from_hook(payload)
+    _stderr_log(f"prompt={raw_input!r}")
     if not raw_input:
         return None
     if not should_refine(raw_input, config):
+        _stderr_log("skipped: should_refine=False")
         return None
 
     # Check credentials
     from .credentials import resolve_for_config
     api_key, _ = resolve_for_config(config)
     if not api_key:
+        _stderr_log("skipped: no API key")
         return None
 
     from .llm import make_llm_caller
@@ -110,14 +113,19 @@ async def handle_hook(
             except Exception:
                 pass
 
+    _stderr_log("calling LLM to refine...")
     try:
         llm_caller = make_llm_caller(config)
         refined, _ = await refine_prompt(raw_input, context, config, llm_caller=llm_caller)
-    except Exception:
+    except Exception as e:
+        _stderr_log(f"LLM failed: {e}")
         return None
+
+    _stderr_log(f"refined={refined!r}")
 
     # Skip if no meaningful change
     if raw_input.strip() == refined.strip():
+        _stderr_log("skipped: no change")
         return None
 
     # Show refinement in terminal (visible to user)
