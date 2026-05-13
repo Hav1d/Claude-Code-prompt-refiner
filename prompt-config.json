@@ -1,0 +1,35 @@
+{
+  "$schema": "./config-schema.json",
+  "refine_model": "claude-haiku-4-5-20251001",
+  "summary_model": "claude-haiku-4-5-20251001",
+  "api_base_url": "",
+  "api_key": "",
+  "auth_token": "",
+  "auto_refine": false,
+  "auto_refine_min_length": 20,
+  "history_lines": 15,
+  "max_summary_tokens": 300,
+  "max_refined_tokens": 800,
+  "cache_ttl": 300.0,
+  "cache_dir": "",
+  "prefix": "",
+  "suffix": "",
+  "skip_commands": ["/no-refine", "/nr", "/skip"],
+  "ignore_patterns": ["^\\s*$", "^/[a-z]+"],
+  "project_rules": [
+    "This is a Python project using asyncio and Pydantic.",
+    "Prefer standard library solutions over external dependencies when possible."
+  ],
+  "user_rules": [
+    "Always preserve exact error messages and file paths.",
+    "When unsure, ask for clarification rather than guessing."
+  ],
+  "language_rules": {
+    "python": ["Use type hints", "Follow PEP 8"],
+    "typescript": ["Use strict mode", "Prefer interfaces over types"]
+  },
+  "transcript_path": "",
+  "debug_mode": false,
+  "log_dir": "",
+  "log_format": "jsonl"
+}

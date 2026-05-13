@@ -1,0 +1,3 @@
+[console_scripts]
+prf = src.app:main
+prompt-refiner = src.app:main

@@ -1,0 +1,8 @@
+{
+  "hook_event_name": "UserPromptSubmit",
+  "prompt": "fix the bug in the login page where users can't submit the form",
+  "session_id": "abc123",
+  "cwd": "/home/user/myproject",
+  "transcript_path": "/home/user/.claude/projects/abc123/transcript.jsonl",
+  "permission_mode": "default"
+}

@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -m src.hook_entry UserPromptSubmit",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}
