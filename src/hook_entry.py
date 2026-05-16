@@ -66,24 +66,41 @@ def _read_stdin_json() -> dict:
 
 def main() -> None:
     event_name, config_path = _parse_args(sys.argv)
+    # Write to log file for debugging — stderr may be suppressed by Claude Code
+    import datetime as _dt, os as _os
+    log_path = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "hook-debug.log")
+    def _log(msg):
+        with open(log_path, "a", encoding="utf-8") as lf:
+            lf.write(f"{_dt.datetime.now().isoformat()} {msg}\n")
+
+    _log(f"HOOK STARTED event={event_name} config={config_path!r}")
 
     try:
         payload = _read_stdin_json()
-    except Exception:
+    except Exception as exc:
+        _log(f"stdin read failed: {exc}")
         return
 
+    _log(f"payload keys={list(payload.keys()) if payload else 'EMPTY'}, prompt={payload.get('prompt', 'N/A')!r}")
+
     if not payload.get("prompt"):
+        _log("no prompt in payload, exiting")
         return
     if event_name not in ("UserPromptSubmit", "UserPromptExpansion"):
+        _log(f"unknown event: {event_name}")
         return
 
     try:
         result = asyncio.run(_run(payload, event_name, config_path))
-    except Exception:
+    except Exception as exc:
+        _log(f"run failed: {exc}")
         return
 
     if result:
+        _log(f"OUTPUT: {json.dumps(result, ensure_ascii=False)[:500]}")
         print(json.dumps(result, ensure_ascii=False))
+    else:
+        _log("result is None, pass through (no stdout output)")
 
 
 async def _run(payload: dict, event_name: str, config_path: str) -> dict | None:

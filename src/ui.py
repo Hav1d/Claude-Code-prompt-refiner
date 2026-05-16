@@ -204,15 +204,20 @@ def show_final_prompt(prompt: str) -> None:
 
 
 def confirm_submit(prompt: str) -> bool:
-    """Ask user to confirm before submitting to Claude Code."""
+    """Show the final prompt and ask for a simple confirmation.
+
+    The A/E/O/S choice was already made in show_refinement_result().
+    This is a last-chance review before the prompt reaches Claude Code.
+    """
     show_final_prompt(prompt)
     try:
         answer = Prompt.ask(
-            "\nSubmit to Claude Code?",
-            choices=["y", "n", "Y", "N"],
-            default="y",
+            "\nPress Enter to submit (Ctrl+C to cancel, 'q' to quit)",
+            choices=["", "y", "Y", "q", "Q"],
+            default="",
             show_choices=False,
         )
-        return answer.lower() == "y"
+        return answer.lower() != "q"
     except (KeyboardInterrupt, EOFError):
+        console.print("\n[info]Cancelled.[/info]")
         return False

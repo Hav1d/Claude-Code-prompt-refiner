@@ -161,7 +161,7 @@ def hook_entry(
     asyncio.run(
         _refine_flow(
             raw_input=raw_input, config=config, skip_refine=False,
-            auto_accept=True, no_submit=True, dry_run=False,
+            auto_accept=False, no_submit=True, dry_run=False,
             output_file=None, hook_mode=True, hook_event=event,
         )
     )

@@ -64,7 +64,12 @@ async def summarize_history(
 def _heuristic_summarize(entries: list[TranscriptEntry]) -> SessionContext:
     """Fast heuristic summarization without LLM calls."""
     ctx = SessionContext()
-    human_msgs = [e.content for e in entries if e.role == "human"]
+    human_msgs = [
+        e.content for e in entries
+        if e.role == "human"
+        and not e.content.startswith("[tool result]")
+        and not e.content.startswith("[tool:")
+    ]
     assistant_msgs = [e.content for e in entries if e.role == "assistant"]
 
     if human_msgs:

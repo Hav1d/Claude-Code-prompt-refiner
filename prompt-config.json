@@ -7,7 +7,7 @@
   "auth_token": "",
   "auto_refine": false,
   "auto_refine_min_length": 20,
-  "history_lines": 15,
+  "history_lines": 50,
   "max_summary_tokens": 300,
   "max_refined_tokens": 800,
   "cache_ttl": 300.0,

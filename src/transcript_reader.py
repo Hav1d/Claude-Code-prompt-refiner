@@ -13,15 +13,16 @@ from .models import TranscriptEntry
 def _cwd_to_project_dir(cwd: Path) -> str:
     """Convert a cwd path to Claude Code's project directory name.
 
-    Claude Code uses: drive:path components joined by '-'
+    Claude Code uses: drive letter + '--' + path components joined by '-'
+    E.g. C:\\Users\\Lenovo → C--Users-Lenovo
     E.g. C:\\Users\\Lenovo\\prompt-refiner → C--Users-Lenovo-prompt-refiner
     """
     resolved = str(cwd.resolve())
-    # Normalize: replace : and path separators with -
-    name = resolved.replace(":", "-").replace("\\", "-").replace("/", "-")
-    # Collapse consecutive dashes
-    while "--" in name:
-        name = name.replace("--", "-")
+    # Replace drive colon+separator with -- (e.g. C:\ → C--)
+    if len(resolved) >= 3 and resolved[1] == ":" and resolved[2] in ("\\", "/"):
+        resolved = resolved[0] + "--" + resolved[3:]
+    # Replace remaining path separators with -
+    name = resolved.replace("\\", "-").replace("/", "-")
     return name.strip("-")
 
 
@@ -99,15 +100,17 @@ def read_transcript(
                 except json.JSONDecodeError:
                     continue
 
-                role = data.get("role", "")
-                content = _extract_content(data)
+                # Handle nested "message" structure (Claude Code format)
+                msg = data.get("message", data)
+                role = msg.get("role", "")
+                content = _extract_content(msg)
                 if content and role in ("human", "assistant", "user"):
                     normalized_role = "human" if role == "user" else role
                     entries.append(
                         TranscriptEntry(
                             role=normalized_role,
                             content=content,
-                            timestamp=data.get("timestamp"),
+                            timestamp=msg.get("timestamp", data.get("timestamp")),
                         )
                     )
     except OSError:
@@ -126,10 +129,20 @@ def _extract_content(data: dict) -> str:
         parts = []
         for block in content:
             if isinstance(block, dict):
-                if block.get("type") == "text":
+                btype = block.get("type", "")
+                if btype == "text":
                     parts.append(block.get("text", ""))
-                elif block.get("type") == "tool_result":
-                    # Summarize tool results briefly
+                elif btype == "thinking":
+                    thinking = block.get("thinking", "")
+                    if thinking:
+                        parts.append(f"[thinking]: {thinking[:300]}")
+                elif btype == "tool_use":
+                    name = block.get("name", "tool")
+                    inp = block.get("input", {})
+                    # Summarize tool input briefly
+                    inp_str = str(inp)[:150]
+                    parts.append(f"[tool: {name}] {inp_str}")
+                elif btype == "tool_result":
                     tool_content = block.get("content", "")
                     if isinstance(tool_content, str) and len(tool_content) > 200:
                         tool_content = tool_content[:200] + "..."
@@ -142,7 +155,7 @@ def _extract_content(data: dict) -> str:
 
 def format_transcript_for_context(
     entries: list[TranscriptEntry],
-    max_chars: int = 4000,
+    max_chars: int = 8000,
 ) -> str:
     """Format transcript entries into a compact text block for LLM consumption.
 
