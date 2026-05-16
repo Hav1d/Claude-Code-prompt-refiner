@@ -3,8 +3,9 @@
 Resolution chain:
 1. Active provider profile's api_key / auth_token
 2. Legacy config api_key / auth_token
-3. ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN env vars
-4. ~/.claude/config.json -> primaryApiKey (optional fallback)
+3. CLAUDE_PLUGIN_OPTION_API_KEY (from Claude Code plugin userConfig)
+4. ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN env vars
+5. ~/.claude/config.json -> primaryApiKey (optional fallback)
 """
 
 from __future__ import annotations
@@ -29,6 +30,11 @@ def resolve_credentials(
         return config_api_key, "api_key"
     if config_auth_token:
         return config_auth_token, "bearer"
+
+    # Claude Code plugin userConfig (set by Claude Code as env var)
+    plugin_key = os.environ.get("CLAUDE_PLUGIN_OPTION_API_KEY", "").strip()
+    if plugin_key:
+        return plugin_key, "api_key"
 
     env_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     if env_key:
@@ -59,13 +65,17 @@ def resolve_for_config(config: "RefineConfig") -> tuple[str, str]:
     # Env var fallbacks for api_key
     if not api_key:
         api_key = (
-            os.environ.get("ANTHROPIC_API_KEY", "")
+            os.environ.get("CLAUDE_PLUGIN_OPTION_API_KEY", "")
+            or os.environ.get("ANTHROPIC_API_KEY", "")
             or os.environ.get("ANTHROPIC_AUTH_TOKEN", "")
         ).strip()
 
     # Env var fallback for base_url
     if not base_url:
-        base_url = os.environ.get("ANTHROPIC_BASE_URL", "").strip()
+        base_url = (
+            os.environ.get("CLAUDE_PLUGIN_OPTION_BASE_URL", "")
+            or os.environ.get("ANTHROPIC_BASE_URL", "")
+        ).strip()
 
     return api_key, base_url
 

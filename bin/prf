@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Wrapper script for prf CLI.
+# When running inside the plugin, uses the venv Python.
+# When running as a standalone install, uses the system prf command.
+
+PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/prompt-refiner}"
+VENV_PYTHON="${DATA_DIR}/.venv/bin/python"
+
+if [ -f "$VENV_PYTHON" ]; then
+  exec "$VENV_PYTHON" -X utf8 -m src.app "$@"
+elif command -v prf >/dev/null 2>&1; then
+  exec prf "$@"
+else
+  echo "Error: prompt-refiner is not installed." >&2
+  echo "Install via plugin: /plugin install prompt-refiner@Hav1d" >&2
+  echo "Or via pip: pip install prompt-refiner" >&2
+  exit 1
+fi

@@ -1,0 +1,25 @@
+{
+  "$schema": "./config-schema.json",
+  "active_provider": "deepseek",
+  "providers": {
+    "deepseek": {
+      "api_key": "",
+      "base_url": "https://api.deepseek.com/v1",
+      "models": {
+        "refine": "deepseek-chat",
+        "summary": "deepseek-chat"
+      }
+    }
+  },
+  "auto_refine": false,
+  "auto_refine_min_length": 20,
+  "history_lines": 50,
+  "max_summary_tokens": 300,
+  "max_refined_tokens": 800,
+  "cache_ttl": 300.0,
+  "prefix": "",
+  "suffix": "",
+  "skip_commands": ["/no-refine", "/nr", "/skip"],
+  "ignore_patterns": ["^\\s*$", "^/[a-z]+"],
+  "debug_mode": false
+}

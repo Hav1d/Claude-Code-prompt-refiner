@@ -2,12 +2,17 @@
 
 Invoked as: python -m src.hook_entry UserPromptSubmit [--config path]
 Reads JSON from stdin, outputs hook response to stdout.
+
+When running as a Claude Code plugin, configuration comes from userConfig
+environment variables (CLAUDE_PLUGIN_OPTION_*). These are merged with any
+--config file provided.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+import os
 import sys
 
 
@@ -26,6 +31,36 @@ def _parse_args(argv: list[str]) -> tuple[str, str]:
         else:
             i += 1
     return event_name, config_path
+
+
+def _plugin_env_config() -> dict:
+    """Build config dict from CLAUDE_PLUGIN_OPTION_* environment variables.
+
+    These are set by Claude Code from userConfig values in plugin.json.
+    """
+    provider = os.environ.get("CLAUDE_PLUGIN_OPTION_PROVIDER", "").strip()
+    api_key = os.environ.get("CLAUDE_PLUGIN_OPTION_API_KEY", "").strip()
+    base_url = os.environ.get("CLAUDE_PLUGIN_OPTION_BASE_URL", "").strip()
+
+    if not api_key:
+        return {}
+
+    cfg: dict = {}
+    if provider:
+        cfg["active_provider"] = provider
+        cfg["providers"] = {
+            provider: {
+                "api_key": api_key,
+            }
+        }
+        if base_url:
+            cfg["providers"][provider]["base_url"] = base_url
+    else:
+        cfg["api_key"] = api_key
+        if base_url:
+            cfg["api_base_url"] = base_url
+
+    return cfg
 
 
 def _read_stdin_json() -> dict:
@@ -107,8 +142,29 @@ async def _run(payload: dict, event_name: str, config_path: str) -> dict | None:
     from .config import load_config
     from .hook_integration import handle_hook
 
-    config = load_config(config_path if config_path else None)
+    # Merge: plugin env config (from userConfig) overrides file config
+    file_config_path = config_path if config_path else None
+    config = load_config(file_config_path)
+
+    env_cfg = _plugin_env_config()
+    if env_cfg:
+        # Apply plugin env overrides to the loaded config
+        config_data = config.model_dump()
+        _deep_merge(config_data, env_cfg)
+        from .config import RefineConfig
+        config = RefineConfig(**config_data)
+
     return await handle_hook(payload, config, event_name=event_name)
+
+
+def _deep_merge(base: dict, override: dict) -> dict:
+    """Recursively merge override into base (mutates base)."""
+    for k, v in override.items():
+        if k in base and isinstance(base[k], dict) and isinstance(v, dict):
+            _deep_merge(base[k], v)
+        else:
+            base[k] = v
+    return base
 
 
 if __name__ == "__main__":

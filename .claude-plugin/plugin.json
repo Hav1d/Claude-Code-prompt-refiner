@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "prompt-refiner",
+  "version": "0.1.0",
+  "description": "Prompt refinement middleware for Claude Code — intercepts, structures, and reviews prompts before Claude processes them",
+  "author": {
+    "name": "Hav1d",
+    "email": "havidran@gmail.com"
+  },
+  "repository": "https://github.com/Hav1d/Claude-Code-prompt-refiner",
+  "license": "MIT",
+  "keywords": [
+    "prompt",
+    "refiner",
+    "claude-code",
+    "hook",
+    "productivity",
+    "context",
+    "refinement"
+  ],
+  "homepage": "https://github.com/Hav1d/Claude-Code-prompt-refiner#readme",
+  "userConfig": {
+    "provider": {
+      "type": "string",
+      "title": "LLM Provider",
+      "description": "Provider ID (e.g. deepseek, openrouter, claude, siliconflow). See 'prf providers list' for all options.",
+      "default": "deepseek"
+    },
+    "api_key": {
+      "type": "string",
+      "title": "API Key",
+      "description": "Your API key for the selected provider",
+      "sensitive": true,
+      "required": true
+    },
+    "base_url": {
+      "type": "string",
+      "title": "Base URL (optional)",
+      "description": "Custom API endpoint. Leave empty for provider default.",
+      "default": ""
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "Hav1d",
+  "description": "Prompt Refiner for Claude Code",
+  "owner": {
+    "name": "Hav1d",
+    "email": "havidran@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "prompt-refiner",
+      "description": "Prompt refinement middleware for Claude Code — intercepts, structures, and reviews prompts before Claude processes them",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "Hav1d",
+        "email": "havidran@gmail.com"
+      },
+      "homepage": "https://github.com/Hav1d/Claude-Code-prompt-refiner"
+    }
+  ]
+}

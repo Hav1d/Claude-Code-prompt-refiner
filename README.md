@@ -34,6 +34,22 @@ User Input
 
 ## Quick Start
 
+### Option A: Claude Code Plugin (Recommended)
+
+```bash
+# In Claude Code, run:
+/plugin install prompt-refiner@Hav1d
+```
+
+Claude Code will prompt you for:
+1. **Provider** — e.g. `deepseek`, `openrouter`, `claude` (default: `deepseek`)
+2. **API Key** — your provider's API key (stored securely in keychain)
+3. **Base URL** — optional custom endpoint
+
+That's it. The hook runs automatically on every prompt — no manual config needed.
+
+### Option B: CLI (Standalone)
+
 ```bash
 # Install
 cd prompt-refiner
@@ -229,9 +245,18 @@ Old single-provider configs are auto-migrated to the multi-provider format:
 
 ## Claude Code Integration (Hooks)
 
-### Setup
+### Plugin Mode (Recommended)
 
-Copy `.claude/settings.json` to your project root:
+Install via `/plugin install prompt-refiner@Hav1d`. The plugin automatically:
+- Registers `SessionStart` hook to bootstrap Python dependencies
+- Registers `UserPromptSubmit` hook for prompt refinement
+- Reads credentials from `userConfig` (stored in keychain)
+
+No manual hook configuration needed.
+
+### Manual Hook Setup (Advanced)
+
+If you prefer manual control, add to your project's `.claude/settings.json`:
 
 ```json
 {
@@ -362,6 +387,20 @@ Use `prf providers list` to see all 47 providers, or `prf providers search <keyw
 
 ```
 prompt-refiner/
+├── .claude-plugin/
+│   ├── plugin.json           # Plugin manifest (userConfig, metadata)
+│   └── marketplace.json      # Marketplace listing (self-referencing)
+├── hooks/
+│   └── hooks.json            # Plugin hooks (SessionStart + UserPromptSubmit)
+├── scripts/
+│   ├── ensure-deps.sh        # SessionStart: venv + deps bootstrap (Unix)
+│   ├── ensure-deps.cmd       # SessionStart: venv + deps bootstrap (Windows)
+│   ├── run-hook.sh           # UserPromptSubmit: env → config → hook (Unix)
+│   └── run-hook.cmd          # UserPromptSubmit: env → config → hook (Windows)
+├── skills/
+│   └── refine/SKILL.md       # Skill definition for Claude
+├── bin/
+│   └── prf                   # CLI wrapper (uses plugin venv or system prf)
 ├── src/
 │   ├── __init__.py
 │   ├── app.py                # CLI entry point (Typer), all commands
@@ -390,9 +429,11 @@ prompt-refiner/
 ├── examples/                 # Hook payload examples
 ├── docs/                     # Extended documentation
 ├── .claude/
-│   ├── settings.json         # Hook configuration for Claude Code
+│   ├── settings.json         # Hook configuration for Claude Code (local dev)
 │   └── settings.local.json.example
+├── requirements.txt          # Python deps (used by plugin bootstrap)
 ├── prompt-config.json        # Project-level config template
+├── prompt-config.example.json # Config template for distribution
 ├── pyproject.toml            # Build config, entry points
 ├── install.sh                # Installation script
 └── README.md

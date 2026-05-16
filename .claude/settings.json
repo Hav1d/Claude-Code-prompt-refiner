@@ -19,5 +19,6 @@
       "Bash(python -X utf8 -m src.*)",
       "Bash(pip install*)"
     ]
-  }
+  },
+  "_comment": "Local development config. For plugin mode, hooks/hooks.json is used instead."
 }
