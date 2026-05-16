@@ -7,7 +7,7 @@
           {
             "type": "command",
             "shell": "bash",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/ensure-deps.sh\" \"${CLAUDE_PLUGIN_DATA}\" \"${CLAUDE_PLUGIN_ROOT}\"",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/ensure-deps.sh\"",
             "timeout": 120000
           }
         ]
@@ -19,7 +19,7 @@
           {
             "type": "command",
             "shell": "bash",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/run-hook.sh\" \"${CLAUDE_PLUGIN_DATA}\" \"${CLAUDE_PLUGIN_ROOT}\"",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/run-hook.sh\" \"${CLAUDE_PLUGIN_DATA}\"",
             "timeout": 45000
           }
         ]

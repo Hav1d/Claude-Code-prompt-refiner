@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # UserPromptSubmit hook: run prompt-refiner on user input.
+# Reads CLAUDE_PLUGIN_ROOT and CLAUDE_PLUGIN_DATA from environment.
 set -e
 
-DATA_DIR="${1:-${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/prompt-refiner}}"
-PLUGIN_ROOT="${2:-${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/prompt-refiner}"
 VENV_PYTHON="${DATA_DIR}/.venv/bin/python"
 
 # If venv doesn't exist yet, pass through silently

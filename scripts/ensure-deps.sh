@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # SessionStart hook: ensure Python venv and dependencies are installed.
 # Runs every session but exits fast (0.01s) if already up to date.
+# Reads CLAUDE_PLUGIN_ROOT and CLAUDE_PLUGIN_DATA from environment.
 set -e
 
-DATA_DIR="${1:-${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/prompt-refiner}}"
-PLUGIN_ROOT="${2:-${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/prompt-refiner}"
 VENV_DIR="${DATA_DIR}/.venv"
 REQ_FILE="${PLUGIN_ROOT}/requirements.txt"
 STAMP_FILE="${DATA_DIR}/.deps-stamp"

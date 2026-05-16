@@ -1,11 +1,11 @@
 @echo off
 REM UserPromptSubmit hook: run prompt-refiner on user input.
-REM Windows version.
+REM Reads CLAUDE_PLUGIN_ROOT and CLAUDE_PLUGIN_DATA from environment.
 
-set "DATA_DIR=%~1"
-set "PLUGIN_ROOT=%~2"
-if "%DATA_DIR%"=="" set "DATA_DIR=%USERPROFILE%\.claude\plugins\data\prompt-refiner"
+set "PLUGIN_ROOT=%CLAUDE_PLUGIN_ROOT%"
+set "DATA_DIR=%CLAUDE_PLUGIN_DATA%"
 if "%PLUGIN_ROOT%"=="" set "PLUGIN_ROOT=%~dp0.."
+if "%DATA_DIR%"=="" set "DATA_DIR=%USERPROFILE%\.claude\plugins\data\prompt-refiner"
 
 set "VENV_PYTHON=%DATA_DIR%\.venv\Scripts\python.exe"
 
