@@ -37,8 +37,11 @@ User Input
 ### Option A: Claude Code Plugin (Recommended)
 
 ```bash
-# In Claude Code, run:
-/plugin install prompt-refiner@Hav1d
+# Step 1: Register the marketplace (one-time)
+/plugin marketplace add https://github.com/Hav1d/Claude-Code-prompt-refiner
+
+# Step 2: Install the plugin from that marketplace
+/plugin install prompt-refiner
 ```
 
 Claude Code will prompt you for:
@@ -46,7 +49,7 @@ Claude Code will prompt you for:
 2. **API Key** — your provider's API key (stored securely in keychain)
 3. **Base URL** — optional custom endpoint
 
-That's it. The hook runs automatically on every prompt — no manual config needed.
+On first session after install, `SessionStart` bootstraps Python dependencies automatically. The `UserPromptSubmit` hook then runs on every prompt — no manual config needed.
 
 ### Option B: CLI (Standalone)
 
@@ -122,11 +125,12 @@ Launches an interactive wizard that:
 
 On startup, credentials are resolved in this order (first match wins):
 
-1. **Saved config**: `~/.prompt-refiner/config.json` → active provider's `api_key`
-2. **Saved config**: `~/.prompt-refiner/config.json` → active provider's `auth_token`
-3. **Environment**: `ANTHROPIC_API_KEY` env var
-4. **Environment**: `ANTHROPIC_AUTH_TOKEN` env var (Bearer token)
-5. **Fallback**: `~/.claude/config.json` → `primaryApiKey` (auto-detect)
+1. **Plugin userConfig**: `CLAUDE_PLUGIN_OPTION_API_KEY` env var (set by Claude Code from keychain)
+2. **Saved config**: `~/.prompt-refiner/config.json` → active provider's `api_key`
+3. **Saved config**: `~/.prompt-refiner/config.json` → active provider's `auth_token`
+4. **Environment**: `ANTHROPIC_API_KEY` env var
+5. **Environment**: `ANTHROPIC_AUTH_TOKEN` env var (Bearer token)
+6. **Fallback**: `~/.claude/config.json` → `primaryApiKey` (auto-detect)
 
 ### Graceful Degradation
 
@@ -145,13 +149,17 @@ prf config clear   # Remove saved provider config
 
 ## Configuration
 
-Config is loaded in priority order (lowest to highest):
+**Plugin mode**: Credentials come from `userConfig` (set during `/plugin install`, stored in keychain). The `SessionStart` hook writes a runtime config from these values — no manual config files needed.
+
+**CLI mode**: Config is loaded in priority order (lowest to highest):
 
 1. **Built-in defaults** (in `src/config.py`)
-2. **User config**: `~/.prompt-refiner/config.json`
-3. **Project config**: `./prompt-config.json`
+2. **User config**: `~/.prompt-refiner/config.json` (via `prf config set`)
+3. **Project config**: `./prompt-config.json` (copy from `prompt-config.example.json`)
 4. **Explicit path**: `--config` flag
 5. **Environment variables**: `REFINE_MODEL`, `ANTHROPIC_API_KEY`, etc.
+
+`prompt-config.example.json` is provided as a template for CLI and manual hook setups only.
 
 ### Multi-Provider Config Format
 
@@ -247,8 +255,16 @@ Old single-provider configs are auto-migrated to the multi-provider format:
 
 ### Plugin Mode (Recommended)
 
-Install via `/plugin install prompt-refiner@Hav1d`. The plugin automatically:
-- Registers `SessionStart` hook to bootstrap Python dependencies
+```bash
+# Register marketplace (one-time)
+/plugin marketplace add https://github.com/Hav1d/Claude-Code-prompt-refiner
+
+# Install plugin
+/plugin install prompt-refiner
+```
+
+The plugin automatically:
+- Registers `SessionStart` hook to bootstrap Python dependencies (runs once per session, fast-exits if deps are current)
 - Registers `UserPromptSubmit` hook for prompt refinement
 - Reads credentials from `userConfig` (stored in keychain)
 

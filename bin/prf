@@ -13,7 +13,7 @@ elif command -v prf >/dev/null 2>&1; then
   exec prf "$@"
 else
   echo "Error: prompt-refiner is not installed." >&2
-  echo "Install via plugin: /plugin install prompt-refiner@Hav1d" >&2
+  echo "Install via plugin: /plugin marketplace add https://github.com/Hav1d/Claude-Code-prompt-refiner && /plugin install prompt-refiner" >&2
   echo "Or via pip: pip install prompt-refiner" >&2
   exit 1
 fi
