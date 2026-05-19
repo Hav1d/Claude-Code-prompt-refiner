@@ -5,7 +5,16 @@ set -e
 
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/plugins/data/prompt-refiner}"
-VENV_PYTHON="${DATA_DIR}/.venv/bin/python"
+
+# Platform detection: Windows (MSYS/Git Bash) uses Scripts/, others use bin/
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*|Windows_NT)
+    VENV_PYTHON="${DATA_DIR}/.venv/Scripts/python.exe"
+    ;;
+  *)
+    VENV_PYTHON="${DATA_DIR}/.venv/bin/python"
+    ;;
+esac
 
 # If venv doesn't exist yet, pass through silently
 if [ ! -f "$VENV_PYTHON" ]; then

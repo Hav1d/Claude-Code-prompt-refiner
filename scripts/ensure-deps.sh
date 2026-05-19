@@ -10,6 +10,20 @@ VENV_DIR="${DATA_DIR}/.venv"
 REQ_FILE="${PLUGIN_ROOT}/requirements.txt"
 STAMP_FILE="${DATA_DIR}/.deps-stamp"
 
+# Platform detection: Windows (MSYS/Git Bash) uses Scripts/, others use bin/
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*|Windows_NT)
+    VENV_BIN="${VENV_DIR}/Scripts"
+    VENV_PYTHON="${VENV_BIN}/python.exe"
+    VENV_PIP="${VENV_BIN}/pip.exe"
+    ;;
+  *)
+    VENV_BIN="${VENV_DIR}/bin"
+    VENV_PYTHON="${VENV_BIN}/python"
+    VENV_PIP="${VENV_BIN}/pip"
+    ;;
+esac
+
 # Fast path: check if dependencies are already installed and up to date
 if [ -f "$STAMP_FILE" ] && [ -d "$VENV_DIR" ] && diff -q "$REQ_FILE" "$STAMP_FILE" >/dev/null 2>&1; then
   echo '{"continue":true,"suppressOutput":true}'
@@ -39,10 +53,10 @@ if [ ! -d "$VENV_DIR" ]; then
 fi
 
 # Install dependencies
-"${VENV_DIR}/bin/pip" install -q --disable-pip-version-check -r "$REQ_FILE" 2>/dev/null
+"$VENV_PIP" install -q --disable-pip-version-check -r "$REQ_FILE" 2>/dev/null
 
 # Install prompt-refiner package itself
-"${VENV_DIR}/bin/pip" install -q --disable-pip-version-check -e "$PLUGIN_ROOT" 2>/dev/null
+"$VENV_PIP" install -q --disable-pip-version-check -e "$PLUGIN_ROOT" 2>/dev/null
 
 # Write stamp
 cp "$REQ_FILE" "$STAMP_FILE"

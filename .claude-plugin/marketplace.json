@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "Hav1d",
+  "name": "prompt-refiner",
   "description": "Prompt Refiner for Claude Code",
   "owner": {
     "name": "Hav1d",
